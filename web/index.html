@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Probar API REST</title>
+    <style>
+      article {
+        border: 1px solid #ccc;
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+      img {
+        height: auto;
+        width: 320px;
+        max-width: 100%;
+      }
+    </style>
+    <script type="module">
+      // Manejo centralizado de errores
+      const sanitizeHTML = (str) => {
+        const div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+      };
+
+      // Obtener y mostrar películas
+      fetch("http://localhost:1234/movies")
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          return res.json();
+        })
+        .then((movies) => {
+          const main = document.querySelector("main");
+          main.innerHTML = movies
+            .map(
+              (movie) => `
+        <article data-id="${sanitizeHTML(movie.id)}">
+          <h2>${sanitizeHTML(movie.title)}</h2>
+          <img src="${sanitizeHTML(movie.poster)}" alt="${sanitizeHTML(
+                movie.title
+              )}">
+          <p>${sanitizeHTML(movie.director)}</p>
+          <button>Eliminar</button>
+        </article>
+      `
+            )
+            .join("");
+        })
+        .catch((err) => {
+          console.error("Fetch Error:", err);
+          document.querySelector(
+            "main"
+          ).innerHTML = `<p class="error">Error cargando películas</p>`;
+        });
+
+      // Delegación de eventos (mejor performance)
+      document.querySelector("main").addEventListener("click", async (e) => {
+        if (e.target.tagName === "BUTTON") {
+          const article = e.target.closest("article");
+          try {
+            const response = await fetch(
+              `http://localhost:1234/movies/${article.dataset.id}`,
+              {
+                method: "DELETE",
+              }
+            );
+
+            if (!response.ok) throw new Error("Error eliminando");
+            article.classList.add("deleting");
+            setTimeout(() => article.remove(), 500); // Animación suave
+          } catch (error) {
+            console.error("Delete Error:", error);
+            alert("No se pudo eliminar: " + error.message);
+          }
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <main></main>
+  </body>
+</html>
