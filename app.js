@@ -1,14 +1,14 @@
 import express, { json } from 'express' // require -> ecmascript module
 /* import movies from './movie.json' with {type: 'json'} */
 
-import { moviesRouter } from './routes/movies'
-import { corsMiddleware } from './middleware/cors'
+import { moviesRouter } from './routes/movies.js'
+/* import { corsMiddleware } from './middleware/cors.js' */
 
 // como leer un json en ESModules recomendado por ahora
 
 const app = express()
 app.use(json())
-app.use(corsMiddleware())
+/* app.use(corsMiddleware()) */
 app.disable('x-powered-by')
 
 // metodos normales: GET/HEAD/POST
